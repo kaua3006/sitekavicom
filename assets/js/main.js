@@ -1,6 +1,3 @@
-// WhatsApp comercial que recebe os pedidos de orçamento
-const WHATSAPP = '5519974239102';
-
 // Sombra no menu ao rolar
 const nav = document.getElementById('nav');
 const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 10);
@@ -45,35 +42,5 @@ const io = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-// Formulário → mensagem pronta no WhatsApp
-const form = document.getElementById('leadForm');
-const err = document.getElementById('formError');
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  const data = new FormData(form);
-  const required = ['nome', 'empresa', 'telefone'];
-  let ok = true;
-  required.forEach(name => {
-    const input = form.elements[name];
-    const empty = !input.value.trim();
-    input.classList.toggle('invalid', empty);
-    if (empty) ok = false;
-  });
-  err.hidden = ok;
-  if (!ok) return;
-
-  const msg = [
-    'Olá, Kavicom! Gostaria de solicitar um orçamento.',
-    '',
-    `*Nome:* ${data.get('nome')}`,
-    `*Empresa:* ${data.get('empresa')}`,
-    `*Telefone:* ${data.get('telefone')}`,
-    `*Serviço:* ${data.get('servico')}`,
-    data.get('mensagem') ? `*Detalhes:* ${data.get('mensagem')}` : null
-  ].filter(l => l !== null).join('\n');
-
-  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
-});
 
 document.getElementById('ano').textContent = new Date().getFullYear();
