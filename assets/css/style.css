@@ -56,24 +56,20 @@ h2 em { font-style: normal; font-weight: 500; color: var(--roxo-600); }
   color: var(--roxo-600);
   margin-bottom: 22px;
 }
-.eyebrow i { width: 32px; height: 2px; background: currentColor; }
 .eyebrow-light { color: var(--roxo-300); }
 
 /* ─── BOTÕES ─── */
 .btn {
   display: inline-flex; align-items: center; gap: 10px;
-  font-family: var(--font-head);
-  font-weight: 700; font-size: 14px;
-  letter-spacing: .14em; text-transform: uppercase;
+  font-family: var(--font-body);
+  font-weight: 600; font-size: 14px;
   text-decoration: none;
-  padding: 11px 22px;
+  padding: 11px 24px;
   border: 1.5px solid transparent;
-  border-radius: 2px;
+  border-radius: 999px;
   cursor: pointer;
   transition: background .25s, color .25s, border-color .25s, transform .25s var(--ease);
 }
-.btn b { font-weight: 400; transition: transform .25s var(--ease); }
-.btn:hover b { transform: translate(3px, -3px); }
 .btn-lg { padding: 16px 30px; font-size: 15px; }
 .btn-full { width: 100%; justify-content: center; }
 .btn-solid { background: var(--roxo-600); color: #fff; }
@@ -258,11 +254,6 @@ h2 em { font-style: normal; font-weight: 500; color: var(--roxo-600); }
   color: #fff;
   overflow: hidden;
 }
-.process::before {
-  content: ''; position: absolute; width: 900px; height: 900px; right: -300px; top: -400px;
-  background: radial-gradient(circle, rgba(148,66,196,.35), transparent 65%);
-  pointer-events: none;
-}
 .process-head { position: relative; max-width: 700px; }
 .process h2 { color: #fff; }
 .process h2 em { color: var(--roxo-300); }
@@ -307,13 +298,13 @@ h2 em { font-style: normal; font-weight: 500; color: var(--roxo-600); }
   margin: 0 32px;
   font-family: var(--font-head); font-weight: 700; font-size: 28px; text-transform: uppercase; letter-spacing: .02em;
 }
+.step h3 { margin-top: 28px; }
 .step p { margin: 12px 32px 0; font-size: 15px; font-weight: 300; color: rgba(255,255,255,.72); }
 .step ul { margin: 20px 32px 0; list-style: none; }
 .step li {
   padding: 9px 0; border-top: 1px solid rgba(255,255,255,.1);
   font-size: 13px; font-weight: 500; color: var(--roxo-100);
 }
-.step li::before { content: '→ '; color: var(--roxo-500); }
 
 .equation {
   position: relative;
@@ -358,19 +349,15 @@ h2 em { font-style: normal; font-weight: 500; color: var(--roxo-600); }
 .sol-list { border-top: 1px solid var(--roxo-100); }
 .sol {
   position: relative;
-  display: grid; grid-template-columns: 56px 1fr 32px; column-gap: 20px;
+  display: block;
   padding: 30px 0;
   border-bottom: 1px solid var(--roxo-100);
   text-decoration: none;
   transition: padding .35s var(--ease);
 }
-.sol span { grid-row: span 2; font-family: var(--font-head); font-weight: 900; font-size: 30px; color: var(--roxo-300); line-height: 1.1; }
 .sol h3 { font-family: var(--font-head); font-weight: 700; font-size: clamp(24px, 2.4vw, 32px); text-transform: uppercase; color: var(--roxo-900); line-height: 1.1; }
-.sol p { grid-column: 2; margin-top: 6px; color: var(--cinza); font-size: 15px; }
-.sol b { grid-column: 3; grid-row: 1; font-weight: 400; font-size: 22px; color: var(--roxo-500); transition: transform .3s var(--ease); }
-.sol:hover { padding-left: 14px; }
-.sol:hover b { transform: translate(4px, -4px); }
-.sol:hover span { color: var(--roxo-600); }
+.sol p { margin-top: 6px; color: var(--cinza); font-size: 15px; }
+.sol:hover h3 { color: var(--roxo-600); }
 
 /* ─── CONTATO ─── */
 .contact {
@@ -499,7 +486,6 @@ h2 em { font-style: normal; font-weight: 500; color: var(--roxo-600); }
   .step-visual { aspect-ratio: 16 / 10; height: auto; }
   .gallery { grid-template-columns: 1fr; grid-auto-rows: 240px; }
   .g-wide { grid-column: auto; }
-  .sol { grid-template-columns: 40px 1fr 24px; column-gap: 12px; }
   .footer { grid-template-columns: 1fr; }
   .hero-actions .btn { width: 100%; justify-content: center; }
 }

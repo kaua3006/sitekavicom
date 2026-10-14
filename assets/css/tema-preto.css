@@ -31,17 +31,18 @@ body { background: var(--preto); color: var(--texto); }
 .search input::placeholder { color: #7f7389; }
 .search input:focus { background: var(--preto-3); border-color: var(--roxo-500); }
 
-.catbar { background: linear-gradient(90deg, var(--roxo-800), var(--roxo-700), var(--roxo-800)); }
+.catbar { background: var(--roxo-700); }
 
 .banner { background: var(--preto); }
 .slide-dark { background: #000; }
-.slide-light { background: radial-gradient(ellipse at 75% 50%, rgba(115,48,164,.28), transparent 60%), var(--preto); }
+.slide-light { background: #000; }
 .slide-light h2 { color: #fff; }
 .slide p { color: var(--suave); }
-.slide-img { mix-blend-mode: normal; border-radius: 18px; box-shadow: 0 30px 80px rgba(115,48,164,.25); }
+.slide-img { mix-blend-mode: normal; }
 .tag { color: var(--roxo-300); background: rgba(148,66,196,.16); border: 1px solid rgba(148,66,196,.35); }
 .slide-dark .tag { color: #fff; background: var(--roxo-600); border-color: var(--roxo-600); }
 .slide-nav { background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.15); box-shadow: none; }
+.slide-nav:hover { background: var(--roxo-600); }
 .dots button { background: #3a2e44; }
 .dots button.is-active { background: var(--roxo-500); }
 
@@ -49,9 +50,11 @@ body { background: var(--preto); color: var(--texto); }
 .perk svg { stroke: var(--roxo-destaque); }
 .perk strong { color: #fff; }
 
-.tile { background: #fff; }
-.tile-big { background: linear-gradient(150deg, #f1e7f8, #fff); }
-.tile span { color: var(--roxo-900); }
+.tile, .tile-big { background: #000; border: 1px solid var(--linha); }
+.tile img { mix-blend-mode: normal; }
+.tile:hover { border-color: var(--roxo-600); }
+.tile span { color: #fff; }
+.tile small { color: var(--roxo-300); }
 
 .section-title { color: #fff; }
 .filters button { background: transparent; border-color: var(--linha); color: var(--texto); }
@@ -59,18 +62,18 @@ body { background: var(--preto); color: var(--texto); }
 .filters button.is-active { background: var(--roxo-600); border-color: var(--roxo-600); color: #fff; }
 
 .card { background: var(--preto-2); border-color: var(--linha); }
-.card:hover { border-color: var(--roxo-600); box-shadow: 0 20px 50px rgba(115,48,164,.22); }
-.card-img { background: #fff; margin: 10px 10px 0; border-radius: 8px; }
-.card-body { border-top: 0; }
+.card:hover { border-color: var(--roxo-600); box-shadow: none; }
+.card-img { background: #000; }
+.card-body { border-top: 1px solid var(--linha); }
 .card-cat { color: var(--roxo-300); }
 .card h3 { color: #fff; }
 
-.cats-row img { background: #fff; border-color: var(--roxo-800); box-shadow: 0 0 0 8px var(--preto-3); }
-.cats-row a:hover img { border-color: var(--roxo-500); box-shadow: 0 0 0 8px rgba(115,48,164,.3); }
+.cats-row img { background: #000; border-color: var(--linha); box-shadow: none; }
+.cats-row a:hover img { border-color: var(--roxo-500); box-shadow: none; }
 .cats-row span { color: #fff; }
 
 .about-cta { background: #000; }
-.about-cta::before { background: linear-gradient(100deg, rgba(0,0,0,.96) 0%, rgba(20,8,30,.85) 45%, rgba(115,48,164,.3) 100%); }
+.about-cta::before { background: linear-gradient(90deg, rgba(0,0,0,.95) 0%, rgba(0,0,0,.8) 50%, rgba(0,0,0,.4) 100%); }
 
 .footer { background: #000; border-top: 1px solid var(--linha); }
 .empty button { color: var(--roxo-300); }
@@ -90,7 +93,7 @@ h2 em { color: var(--roxo-destaque); }
 .hero { background: #000; }
 .hero-shade {
   background:
-    linear-gradient(105deg, rgba(0,0,0,.96) 0%, rgba(8,3,12,.88) 30%, rgba(40,12,60,.5) 58%, rgba(115,48,164,.15) 85%),
+    linear-gradient(90deg, rgba(0,0,0,.95) 0%, rgba(0,0,0,.82) 35%, rgba(0,0,0,.45) 65%, rgba(0,0,0,.25) 100%),
     linear-gradient(to top, rgba(0,0,0,.95) 0%, transparent 40%);
 }
 
@@ -115,10 +118,10 @@ h2 em { color: var(--roxo-destaque); }
 .solutions { background: var(--preto-2); }
 .sol-list, .sol { border-color: var(--linha); }
 .sol h3 { color: #fff; }
-.sol:hover span { color: var(--roxo-destaque); }
+.sol:hover h3 { color: var(--roxo-destaque); }
 
-.contact { background: radial-gradient(ellipse at 20% 0%, rgba(115,48,164,.35), transparent 55%), #000; }
-.contact-card { background: var(--preto-2); color: var(--texto); border: 1px solid var(--linha); box-shadow: 0 40px 80px rgba(0,0,0,.6); }
+.contact { background: #000; border-top: 1px solid var(--linha); }
+.contact-card { background: var(--preto-2); color: var(--texto); border: 1px solid var(--linha); border-radius: 12px; box-shadow: none; }
 .contact-card h3 { color: #fff; }
 .btn-outline { border-color: var(--roxo-500); color: var(--roxo-300); }
 .btn-outline:hover { background: rgba(148,66,196,.12); }

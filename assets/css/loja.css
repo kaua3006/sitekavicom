@@ -41,15 +41,12 @@ button { font: inherit; cursor: pointer; }
 /* ─── BOTÕES ─── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  font-family: var(--font-head); font-weight: 700; font-size: 14px;
-  letter-spacing: .12em; text-transform: uppercase;
-  padding: 11px 20px;
-  border: 1.5px solid transparent; border-radius: 4px;
+  font-family: var(--font-body); font-weight: 600; font-size: 14px;
+  padding: 11px 22px;
+  border: 1.5px solid transparent; border-radius: 999px;
   transition: background .25s, color .25s, transform .25s var(--ease);
 }
-.btn b { font-weight: 400; transition: transform .25s var(--ease); }
-.btn:hover b { transform: translateX(4px); }
-.btn-lg { padding: 15px 28px; font-size: 15px; }
+.btn-lg { padding: 14px 30px; font-size: 15px; }
 .btn-full { width: 100%; }
 .btn-solid { background: var(--roxo-600); color: #fff; }
 .btn-solid:hover { background: var(--roxo-700); }
@@ -185,11 +182,12 @@ button { font: inherit; cursor: pointer; }
   position: absolute; top: 50%; z-index: 5; transform: translateY(-50%);
   width: 44px; height: 44px; border-radius: 50%;
   border: 0; background: rgba(255,255,255,.9); color: var(--roxo-800);
-  font-size: 26px; line-height: 1;
+  display: grid; place-items: center;
   box-shadow: 0 6px 20px rgba(42,15,63,.15);
   transition: background .2s, color .2s;
 }
 .slide-nav:hover { background: var(--roxo-600); color: #fff; }
+.slide-nav svg { width: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .prev { left: 18px; } .next { right: 18px; }
 .dots { position: absolute; left: 50%; bottom: 20px; z-index: 5; display: flex; gap: 8px; transform: translateX(-50%); }
 .dots button { width: 10px; height: 10px; border-radius: 999px; border: 0; background: var(--roxo-300); opacity: .6; transition: width .3s, opacity .3s, background .3s; }
@@ -394,7 +392,7 @@ button { font: inherit; cursor: pointer; }
   .card-body { padding: 14px; }
   .card h3 { font-size: 14px; }
   .card p { font-size: 12.5px; }
-  .card .btn { font-size: 12px; padding: 10px 8px; letter-spacing: .06em; }
+  .card .btn { font-size: 12.5px; padding: 10px 8px; }
 }
 
 @media (max-width: 480px) {

@@ -1,6 +1,10 @@
 // WhatsApp que recebe os pedidos dos produtos
 const WHATSAPP = '5519974239102';
 
+// No tema preto as fotos usam a versão recortada, sem fundo branco
+const TEMA_PRETO = document.body.dataset.tema === 'preto';
+const foto = src => TEMA_PRETO ? src.replace('/produtos/', '/produtos-preto/').replace(/\.jpg$/, '.webp') : src;
+
 const NOMES_CATEGORIA = {
   todos: 'Mais vendidos',
   deslizantes: 'Deslizantes',
@@ -37,7 +41,7 @@ function render() {
     <article class="card">
       <div class="card-img">
         ${p.selo ? `<span class="card-seal">${p.selo}</span>` : ''}
-        <img src="${p.imagem}" alt="${p.nome}" loading="lazy">
+        <img src="${foto(p.imagem)}" alt="${p.nome}" loading="lazy">
       </div>
       <div class="card-body">
         <span class="card-cat">${NOMES_CATEGORIA[p.categoria]}</span>
