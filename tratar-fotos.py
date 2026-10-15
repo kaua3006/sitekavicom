@@ -7,11 +7,15 @@ Gera duas versões com o mesmo nome:
   assets/img/produtos/<nome>.jpg         fundo branco com sombra suave (site claro)
   assets/img/produtos-preto/<nome>.webp  fundo transparente com reflexo (site preto)
 
-Uso:  python tratar-fotos.py
+Uso:  python tratar-fotos.py                 (todos os produtos)
+      python tratar-fotos.py varao-due ...   (só os produtos indicados)
 Para um produto novo, coloque a foto em FOTOS/ e acrescente uma linha em PRODUTOS.
+Cada produto tratado fica guardado em FOTOS/catalogo/_tratadas/, para montar o banner
+sem reprocessar tudo.
 Requer: pip install "rembg[cpu]" opencv-contrib-python-headless pillow
 """
 import os
+import sys
 import urllib.request
 from pathlib import Path
 
@@ -28,25 +32,33 @@ RAIZ = Path(__file__).parent
 FOTOS = RAIZ / 'FOTOS'
 SAIDA_BRANCO = RAIZ / 'assets/img/produtos'
 SAIDA_PRETO = RAIZ / 'assets/img/produtos-preto'
+TRATADAS = FOTOS / 'catalogo/_tratadas'
 
 LADO = 1200          # tamanho final (quadrado)
 OCUPA_L = 0.70       # largura máxima do produto no quadro
 OCUPA_A = 0.66       # altura máxima do produto no quadro
 BASE = 0.80          # altura (fração) onde fica a base do produto
 
-G = 'ChatGPT Image 16 de set. de 2026, '
+# Fotos extraídas dos catálogos em PDF, em FOTOS/catalogo/<nome>.png
 # nome de saída: (arquivo em FOTOS, recorte (esq, topo, dir, baixo) ou None)
-PRODUTOS = {
-    'deslizante-argola-giratoria': (G + '16_09_44.png', (90, 0, 814, 724)),
-    'deslizante-gancho':           (G + '16_09_44.png', (757, 0, 1481, 724)),
-    'deslizante-roldana':          (G + '16_09_44.png', (1447, 0, 2171, 724)),
-    'gancho-cortina':              (G + '16_22_54.png', None),
-    'cordao-esferas':              (G + '16_24_22.png', None),
-    'fita-franzidora':             (G + '16_25_55.png', None),
-    'deslizante-suico-argola':     (G + '16_59_45.png', None),
+CATALOGO = [
+    'max-redondo', 'deslizante-click-clip', 'deslizante-wave', 'deslizante-terminal',
+    'clips-gancho-facil', 'gancho-clips',
+    'fita-wave', 'fita-wave-botoes', 'fita-facil',
+    'varao-due', 'varao-facile', 'ponteira-suporte',
+    'ilhos-piazza', 'ilhos-round', 'argola-massiccio',
+    'apanhador-losangular', 'apanhador-oval',
+]
+PRODUTOS = {nome: (f'catalogo/{nome}.png', None) for nome in CATALOGO}
+# Produtos fotografados sobre fundo escuro uniforme: recorte pela diferença de cor
+# em relação ao fundo (o recorte automático deixa peças brancas translúcidas)
+FUNDO_ESCURO = {
+    'varao-due', 'varao-facile', 'ponteira-suporte',
+    'ilhos-piazza', 'ilhos-round', 'argola-massiccio',
+    'apanhador-losangular', 'apanhador-oval',
 }
 # Banner com a linha completa de deslizantes lado a lado
-LINHA = ('linha-deslizantes', ['deslizante-argola-giratoria', 'deslizante-gancho', 'deslizante-roldana'])
+LINHA = ('linha-deslizantes', ['max-redondo', 'deslizante-click-clip', 'deslizante-wave', 'deslizante-terminal'])
 
 MODELO_SR = Path.home() / '.cache/kavicom/EDSR_x2.pb'
 URL_SR = 'https://raw.githubusercontent.com/Saafke/EDSR_Tensorflow/master/models/EDSR_x2.pb'
@@ -74,14 +86,43 @@ def ampliar(img_rgba, sr):
 
 
 def recortar(img_rgb, sessao):
-    out = remove(img_rgb, session=sessao, alpha_matting=True,
-                 alpha_matting_foreground_threshold=250,
-                 alpha_matting_background_threshold=12,
-                 alpha_matting_erode_size=8)
+    try:
+        out = remove(img_rgb, session=sessao, alpha_matting=True,
+                     alpha_matting_foreground_threshold=250,
+                     alpha_matting_background_threshold=12,
+                     alpha_matting_erode_size=8)
+    except MemoryError:
+        # refinamento de borda pesado demais para esta foto; recorte direto
+        out = remove(img_rgb, session=sessao)
     # limpa resíduos quase transparentes que viram halo no fundo escuro
     a = out.getchannel('A').point(lambda v: 0 if v < 10 else v)
     out.putalpha(a)
     return out.crop(a.getbbox())
+
+
+def recortar_fundo_escuro(img_rgb):
+    im = np.asarray(img_rgb).astype(np.float32)
+    b = 8
+    borda = np.concatenate([im[:b].reshape(-1, 3), im[-b:].reshape(-1, 3),
+                            im[:, :b].reshape(-1, 3), im[:, -b:].reshape(-1, 3)])
+    fundo = np.median(borda, axis=0)
+    # fundo local (acompanha degradês): borrão da foto com o produto apagado
+    base = im.copy()
+    base[np.linalg.norm(im - fundo, axis=2) > 30] = fundo
+    fundo_local = np.asarray(Image.fromarray(base.astype(np.uint8)).filter(ImageFilter.GaussianBlur(40))).astype(np.float32)
+    dist = np.linalg.norm(im - fundo_local, axis=2)
+    a = np.asarray(Image.fromarray((np.clip((dist - 14) / 36, 0, 1) * 255).astype(np.uint8)).filter(ImageFilter.MedianFilter(3))).copy()
+    # descarta fragmentos soltos pequenos (restos de texto do catálogo)
+    n, rotulos, stats, _ = cv2.connectedComponentsWithStats((a > 30).astype(np.uint8), connectivity=8)
+    if n > 1:
+        maior = stats[1:, cv2.CC_STAT_AREA].max()
+        for i in range(1, n):
+            if stats[i, cv2.CC_STAT_AREA] < maior * 0.02:
+                a[rotulos == i] = 0
+    alpha = Image.fromarray(a)
+    out = img_rgb.convert('RGBA')
+    out.putalpha(alpha)
+    return out.crop(alpha.point(lambda v: 255 if v > 30 else 0).getbbox())
 
 
 def melhorar(img_rgba):
@@ -148,21 +189,31 @@ def main():
     sessao = new_session('isnet-general-use')
     sr = super_resolucao()
 
-    tratados = {}
-    for nome, (arquivo, caixa) in PRODUTOS.items():
+    TRATADAS.mkdir(parents=True, exist_ok=True)
+    escolhidos = sys.argv[1:] or list(PRODUTOS)
+    desconhecidos = [n for n in escolhidos if n not in PRODUTOS]
+    if desconhecidos:
+        sys.exit(f'produto desconhecido: {", ".join(desconhecidos)}')
+
+    for nome in escolhidos:
+        arquivo, caixa = PRODUTOS[nome]
         img = Image.open(FOTOS / arquivo).convert('RGB')
         if caixa:
             img = img.crop(caixa)
-        prod = recortar(img, sessao)
+        prod = recortar_fundo_escuro(img) if nome in FUNDO_ESCURO else recortar(img, sessao)
         # amplia quando o produto ficaria menor que o quadro final
         if max(prod.width / (LADO * OCUPA_L), prod.height / (LADO * OCUPA_A)) < 1:
             prod = ampliar(prod, sr)
         prod = melhorar(prod)
-        tratados[nome] = prod
+        prod.save(TRATADAS / f'{nome}.png')
         salvar(nome, prod)
 
     # banner: produtos da linha lado a lado, mesma altura
     nome, itens = LINHA
+    if not all((TRATADAS / f'{i}.png').exists() for i in itens):
+        print(f'banner {nome} não montado: faltam produtos da linha em {TRATADAS}')
+        return
+    tratados = {i: Image.open(TRATADAS / f'{i}.png') for i in itens}
     alt = max(tratados[i].height for i in itens)
     pecas = [tratados[i].resize((round(tratados[i].width * alt / tratados[i].height), alt), Image.LANCZOS) for i in itens]
     gap = alt // 3

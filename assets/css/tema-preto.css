@@ -67,6 +67,9 @@ body { background: var(--preto); color: var(--texto); }
 .card-body { border-top: 1px solid var(--linha); }
 .card-cat { color: var(--roxo-300); }
 .card h3 { color: #fff; }
+.card-specs dt { color: var(--roxo-300); }
+.card-specs dd { color: var(--texto); }
+.sw { box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
 
 .cats-row img { background: #000; border-color: var(--linha); box-shadow: none; }
 .cats-row a:hover img { border-color: var(--roxo-500); box-shadow: none; }

@@ -6,12 +6,36 @@ const TEMA_PRETO = document.body.dataset.tema === 'preto';
 const foto = src => TEMA_PRETO ? src.replace('/produtos/', '/produtos-preto/').replace(/\.jpg$/, '.webp') : src;
 
 const NOMES_CATEGORIA = {
-  todos: 'Mais vendidos',
+  todos: 'Todos os produtos',
   deslizantes: 'Deslizantes',
   ganchos: 'Ganchos',
-  fitas: 'Fitas e Entretelas',
-  persianas: 'Persianas'
+  fitas: 'Fitas',
+  varoes: 'Varões',
+  ilhoses: 'Ilhoses e Argolas',
+  apanhadores: 'Apanhadores'
 };
+
+// Referência de cores do catálogo
+const CORES_HEX = {
+  'Bege': '#efd9b0', 'Marfim': '#f4ecd6', 'Cerejeira': '#d9773c', 'Branco': '#ffffff',
+  'Mogno': '#7a1f2b', 'Imbuia': '#6b4026', 'Titânio': '#9b9b9b', 'Rosa Bebê': '#f4a9c6',
+  'Azul Bebê': '#86a6ea', 'Ouro Velho': '#9b8150', 'Palha': '#f1d35a', 'Preto': '#141414',
+  'Rosa Pink': '#ff3fa4', 'Lilás': '#c58be0', 'Roxo': '#7b3fc4', 'Vermelho': '#e3262b',
+  'Verde Pistache': '#88d77b', 'Verde Escuro': '#1f7a3a', 'Amarelo': '#f6c400', 'Laranja': '#f5822a',
+  'Azul': '#4f6db0', 'Rosa': '#e88bb0',
+  'Transparente': 'transparente', 'Cromado': 'cromado', 'Dourado': 'dourado'
+};
+const bolinha = nome => {
+  const v = CORES_HEX[nome] || '#ccc';
+  const estilo = v.startsWith('#') ? ` style="--cor:${v}"` : '';
+  const classe = v.startsWith('#') ? '' : ` sw-${v}`;
+  return `<i class="sw${classe}"${estilo} title="${nome}"></i>`;
+};
+const juntar = l => l.length > 1 ? `${l.slice(0, -1).join(', ')} e ${l[l.length - 1]}` : l[0];
+const coresHTML = c => `
+  <div class="swatches">${[...c.injetado, ...c.metalizado].map(bolinha).join('')}</div>
+  <span class="sw-legenda">${c.injetado.length} cores injetadas · Metalizado: ${juntar(c.metalizado)}</span>`;
+const coresTexto = c => c ? [...c.injetado, ...c.metalizado].join(' ') : '';
 
 const grid = document.getElementById('grid');
 const empty = document.getElementById('empty');
@@ -31,7 +55,7 @@ function render() {
   const termo = normalizar(busca.trim());
   const lista = PRODUTOS.filter(p =>
     (categoriaAtual === 'todos' || p.categoria === categoriaAtual) &&
-    (!termo || normalizar(`${p.nome} ${p.descricao} ${p.categoria}`).includes(termo))
+    (!termo || normalizar(`${p.nome} ${p.tag} ${p.descricao} ${NOMES_CATEGORIA[p.categoria]} ${p.medidas} ${coresTexto(p.cores)}`).includes(termo))
   );
 
   title.textContent = termo ? `Resultados para "${busca.trim()}"` : NOMES_CATEGORIA[categoriaAtual];
@@ -44,9 +68,13 @@ function render() {
         <img src="${foto(p.imagem)}" alt="${p.nome}" loading="lazy">
       </div>
       <div class="card-body">
-        <span class="card-cat">${NOMES_CATEGORIA[p.categoria]}</span>
+        <span class="card-cat">${p.tag || NOMES_CATEGORIA[p.categoria]}</span>
         <h3>${p.nome}</h3>
         <p>${p.descricao}</p>
+        ${p.medidas || p.cores ? `<dl class="card-specs">
+          ${p.medidas ? `<div><dt>Medidas</dt><dd>${p.medidas}</dd></div>` : ''}
+          ${p.cores ? `<div><dt>Cores</dt><dd>${coresHTML(p.cores)}</dd></div>` : ''}
+        </dl>` : ''}
         <a href="${linkWhatsApp(p.nome)}" target="_blank" rel="noopener" class="btn btn-solid btn-full">Comprar pelo WhatsApp</a>
       </div>
     </article>`).join('');
