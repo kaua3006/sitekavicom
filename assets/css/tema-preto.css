@@ -50,30 +50,31 @@ body { background: var(--preto); color: var(--texto); }
 .perk svg { stroke: var(--roxo-destaque); }
 .perk strong { color: #fff; }
 
-.tile, .tile-big { background: #000; border: 1px solid var(--linha); }
-.tile img { mix-blend-mode: normal; }
-.tile:hover { border-color: var(--roxo-600); }
-.tile span { color: #fff; }
-.tile small { color: var(--roxo-300); }
 
 .section-title { color: #fff; }
 .filters button { background: transparent; border-color: var(--linha); color: var(--texto); }
 .filters button:hover { border-color: var(--roxo-500); }
 .filters button.is-active { background: var(--roxo-600); border-color: var(--roxo-600); color: #fff; }
 
-.card { background: var(--preto-2); border-color: var(--linha); }
-.card:hover { border-color: var(--roxo-600); box-shadow: none; }
+.linha { border-top-color: var(--linha); }
+.linha-head h2 { color: #fff; }
+.card { background: #000; border-color: var(--linha); }
+.card:hover { border-color: var(--roxo-600); }
 .card-img { background: #000; }
-.card-body { border-top: 1px solid var(--linha); }
 .card-cat { color: var(--roxo-300); }
-.card h3 { color: #fff; }
-.card-specs dt { color: var(--roxo-300); }
-.card-specs dd { color: var(--texto); }
+.card-nome { color: #fff; }
+.card-link { color: var(--roxo-300); }
+
+.detalhe { background: var(--preto-2); color: var(--texto); border: 1px solid var(--linha); }
+.detalhe::backdrop { background: rgba(0, 0, 0, .8); }
+.detalhe-foto { background: #000; }
+.detalhe-cat, .detalhe-specs dt { color: var(--roxo-300); }
+.detalhe-nome { color: #fff; }
+.detalhe-specs div { border-top-color: var(--linha); }
+.detalhe-fechar { background: rgba(255,255,255,.08); color: #fff; }
+.detalhe-fechar:hover { background: var(--roxo-600); }
 .sw { box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
 
-.cats-row img { background: #000; border-color: var(--linha); box-shadow: none; }
-.cats-row a:hover img { border-color: var(--roxo-500); box-shadow: none; }
-.cats-row span { color: #fff; }
 
 .about-cta { background: #000; }
 .about-cta::before { background: linear-gradient(90deg, rgba(0,0,0,.95) 0%, rgba(0,0,0,.8) 50%, rgba(0,0,0,.4) 100%); }

@@ -111,34 +111,10 @@
     </div>
   </section>
 
-  <!-- MOSAICO DE CATEGORIAS -->
-  <section class="mosaic" aria-label="Categorias em destaque">
-    <a href="#produtos" class="tile tile-big" data-cat-link="deslizantes">
-      <img src="assets/img/produtos/max-redondo.jpg" alt="" loading="lazy">
-      <span><small>Linha</small>Deslizantes</span>
-    </a>
-    <a href="#produtos" class="tile" data-cat-link="ganchos">
-      <img src="assets/img/produtos/clips-gancho-facil.jpg" alt="" loading="lazy">
-      <span><small>Linha</small>Ganchos</span>
-    </a>
-    <a href="#produtos" class="tile" data-cat-link="fitas">
-      <img src="assets/img/produtos/fita-facil.jpg" alt="" loading="lazy">
-      <span><small>Linha</small>Fitas</span>
-    </a>
-    <a href="#produtos" class="tile" data-cat-link="varoes">
-      <img src="assets/img/produtos/varao-due.jpg" alt="" loading="lazy">
-      <span><small>Linha</small>Varões</span>
-    </a>
-    <a href="#produtos" class="tile" data-cat-link="ilhoses">
-      <img src="assets/img/produtos/ilhos-round.jpg" alt="" loading="lazy">
-      <span><small>Linha</small>Ilhoses</span>
-    </a>
-  </section>
-
   <!-- VITRINE -->
   <section class="shop" id="produtos">
     <div class="shop-head">
-      <h2 class="section-title" id="shopTitle">Todos os produtos</h2>
+      <h2 class="section-title">Nossos produtos</h2>
       <div class="filters" id="filters">
         <button data-cat="todos" class="is-active">Todos</button>
         <button data-cat="deslizantes">Deslizantes</button>
@@ -149,22 +125,24 @@
         <button data-cat="apanhadores">Apanhadores</button>
       </div>
     </div>
-    <div class="grid" id="grid"></div>
+    <div id="vitrine"></div>
     <p class="empty" id="empty" hidden>Nenhum produto encontrado. <button id="clearSearch">Ver todos</button></p>
   </section>
 
-  <!-- CATEGORIAS EM CÍRCULO -->
-  <section class="cats">
-    <h2 class="section-title">Navegue por categorias</h2>
-    <div class="cats-row">
-      <a href="#produtos" data-cat-link="deslizantes"><img src="assets/img/produtos/max-redondo.jpg" alt="" loading="lazy"><span>Deslizantes</span></a>
-      <a href="#produtos" data-cat-link="ganchos"><img src="assets/img/produtos/clips-gancho-facil.jpg" alt="" loading="lazy"><span>Ganchos</span></a>
-      <a href="#produtos" data-cat-link="fitas"><img src="assets/img/produtos/fita-facil.jpg" alt="" loading="lazy"><span>Fitas</span></a>
-      <a href="#produtos" data-cat-link="varoes"><img src="assets/img/produtos/varao-due.jpg" alt="" loading="lazy"><span>Varões</span></a>
-      <a href="#produtos" data-cat-link="ilhoses"><img src="assets/img/produtos/ilhos-round.jpg" alt="" loading="lazy"><span>Ilhoses e Argolas</span></a>
-      <a href="#produtos" data-cat-link="apanhadores"><img src="assets/img/produtos/apanhador-oval.jpg" alt="" loading="lazy"><span>Apanhadores</span></a>
+  <!-- DETALHES DO PRODUTO -->
+  <dialog class="detalhe" id="detalhe" aria-label="Detalhes do produto">
+    <button type="button" class="detalhe-fechar" aria-label="Fechar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <div class="detalhe-foto"><img class="detalhe-img" src="" alt=""></div>
+    <div class="detalhe-info">
+      <span class="detalhe-cat"></span>
+      <h3 class="detalhe-nome"></h3>
+      <p class="detalhe-desc"></p>
+      <dl class="detalhe-specs"></dl>
+      <a class="detalhe-cta btn btn-solid btn-lg btn-full" href="#" target="_blank" rel="noopener">Comprar pelo WhatsApp</a>
     </div>
-  </section>
+  </dialog>
 
   <!-- CHAMADA QUEM SOMOS -->
   <section class="about-cta">

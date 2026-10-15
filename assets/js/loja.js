@@ -37,9 +37,18 @@ const coresHTML = c => `
   <span class="sw-legenda">${c.injetado.length} cores injetadas · Metalizado: ${juntar(c.metalizado)}</span>`;
 const coresTexto = c => c ? [...c.injetado, ...c.metalizado].join(' ') : '';
 
-const grid = document.getElementById('grid');
+// Linhas do catálogo, na ordem em que aparecem na vitrine
+const LINHAS = [
+  { cat: 'deslizantes', texto: 'Quatro modelos para correr a cortina no trilho, incluindo o terminal para finalizar.' },
+  { cat: 'ganchos', texto: 'Dois modelos de gancho clip para ligar a cortina aos deslizantes.' },
+  { cat: 'fitas', texto: 'Três opções para montar o topo da cortina e definir o seu caimento.' },
+  { cat: 'varoes', texto: 'Duas linhas exclusivas, com kit completo de varão, suporte e ponteira.' },
+  { cat: 'ilhoses', texto: 'Ilhoses quadrados e redondos e argolas maciças, em mais de 20 cores.' },
+  { cat: 'apanhadores', texto: 'Para prender e abrir a cortina nas laterais, em dois formatos.' }
+];
+
+const vitrine = document.getElementById('vitrine');
 const empty = document.getElementById('empty');
-const title = document.getElementById('shopTitle');
 const searchInput = document.getElementById('searchInput');
 const filterButtons = document.querySelectorAll('#filters button');
 
@@ -51,33 +60,42 @@ const normalizar = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 const linkWhatsApp = nome =>
   `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Olá, Kavicom! Tenho interesse no produto: ${nome}.`)}`;
 
+const card = p => `
+  <button type="button" class="card" data-produto="${PRODUTOS.indexOf(p)}">
+    <span class="card-img">
+      ${p.selo ? `<span class="card-seal">${p.selo}</span>` : ''}
+      <img src="${foto(p.imagem)}" alt="" loading="lazy">
+    </span>
+    <span class="card-body">
+      <span class="card-cat">${p.tag || NOMES_CATEGORIA[p.categoria]}</span>
+      <span class="card-nome">${p.nome}</span>
+      <span class="card-link">Ver detalhes</span>
+    </span>
+  </button>`;
+
+const grupo = (titulo, texto, lista) => `
+  <section class="linha">
+    <header class="linha-head">
+      <h2>${titulo}</h2>
+      ${texto ? `<p>${texto}</p>` : ''}
+    </header>
+    <div class="grid">${lista.map(card).join('')}</div>
+  </section>`;
+
 function render() {
   const termo = normalizar(busca.trim());
-  const lista = PRODUTOS.filter(p =>
-    (categoriaAtual === 'todos' || p.categoria === categoriaAtual) &&
-    (!termo || normalizar(`${p.nome} ${p.tag} ${p.descricao} ${NOMES_CATEGORIA[p.categoria]} ${p.medidas} ${coresTexto(p.cores)}`).includes(termo))
-  );
-
-  title.textContent = termo ? `Resultados para "${busca.trim()}"` : NOMES_CATEGORIA[categoriaAtual];
-  empty.hidden = lista.length > 0;
-
-  grid.innerHTML = lista.map(p => `
-    <article class="card">
-      <div class="card-img">
-        ${p.selo ? `<span class="card-seal">${p.selo}</span>` : ''}
-        <img src="${foto(p.imagem)}" alt="${p.nome}" loading="lazy">
-      </div>
-      <div class="card-body">
-        <span class="card-cat">${p.tag || NOMES_CATEGORIA[p.categoria]}</span>
-        <h3>${p.nome}</h3>
-        <p>${p.descricao}</p>
-        ${p.medidas || p.cores ? `<dl class="card-specs">
-          ${p.medidas ? `<div><dt>Medidas</dt><dd>${p.medidas}</dd></div>` : ''}
-          ${p.cores ? `<div><dt>Cores</dt><dd>${coresHTML(p.cores)}</dd></div>` : ''}
-        </dl>` : ''}
-        <a href="${linkWhatsApp(p.nome)}" target="_blank" rel="noopener" class="btn btn-solid btn-full">Comprar pelo WhatsApp</a>
-      </div>
-    </article>`).join('');
+  if (termo) {
+    const lista = PRODUTOS.filter(p =>
+      normalizar(`${p.nome} ${p.tag} ${p.descricao} ${NOMES_CATEGORIA[p.categoria]} ${p.medidas} ${coresTexto(p.cores)}`).includes(termo));
+    empty.hidden = lista.length > 0;
+    vitrine.innerHTML = lista.length ? grupo(`Resultados para "${busca.trim()}"`, '', lista) : '';
+    return;
+  }
+  empty.hidden = true;
+  vitrine.innerHTML = LINHAS
+    .filter(l => categoriaAtual === 'todos' || l.cat === categoriaAtual)
+    .map(l => grupo(NOMES_CATEGORIA[l.cat], l.texto, PRODUTOS.filter(p => p.categoria === l.cat)))
+    .join('');
 }
 
 function setCategoria(cat) {
@@ -88,7 +106,7 @@ function setCategoria(cat) {
 
 filterButtons.forEach(b => b.addEventListener('click', () => setCategoria(b.dataset.cat)));
 
-// Links de categoria espalhados pela página (menu, mosaico, círculos, rodapé)
+// Links de categoria espalhados pela página (menu, banner, rodapé)
 document.querySelectorAll('[data-cat], [data-cat-link]').forEach(el => {
   if (el.closest('#filters')) return;
   el.addEventListener('click', () => {
@@ -115,6 +133,26 @@ document.getElementById('clearSearch').addEventListener('click', () => {
   searchInput.value = '';
   setCategoria('todos');
 });
+
+// Detalhes do produto
+const detalhe = document.getElementById('detalhe');
+vitrine.addEventListener('click', e => {
+  const el = e.target.closest('[data-produto]');
+  if (!el) return;
+  const p = PRODUTOS[+el.dataset.produto];
+  detalhe.querySelector('.detalhe-img').src = foto(p.imagem);
+  detalhe.querySelector('.detalhe-img').alt = p.nome;
+  detalhe.querySelector('.detalhe-cat').textContent = `${NOMES_CATEGORIA[p.categoria]} · ${p.tag}`;
+  detalhe.querySelector('.detalhe-nome').textContent = p.nome;
+  detalhe.querySelector('.detalhe-desc').textContent = p.descricao;
+  detalhe.querySelector('.detalhe-specs').innerHTML =
+    (p.medidas ? `<div><dt>Medidas</dt><dd>${p.medidas}</dd></div>` : '') +
+    (p.cores ? `<div><dt>Cores</dt><dd>${coresHTML(p.cores)}</dd></div>` : '');
+  detalhe.querySelector('.detalhe-cta').href = linkWhatsApp(p.nome);
+  detalhe.showModal();
+});
+detalhe.querySelector('.detalhe-fechar').addEventListener('click', () => detalhe.close());
+detalhe.addEventListener('click', e => { if (e.target === detalhe) detalhe.close(); });
 
 render();
 
