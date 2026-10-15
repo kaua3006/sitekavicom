@@ -57,6 +57,9 @@ FUNDO_ESCURO = {
     'ilhos-piazza', 'ilhos-round', 'argola-massiccio',
     'apanhador-losangular', 'apanhador-oval',
 }
+# Peças brancas fotografadas sobre fundo branco: recorte pelo contraste com o branco
+# puro (o recorte automático deixa o tecido translúcido e acinzentado no fundo preto)
+FUNDO_CLARO = {'fita-wave-botoes'}
 # Banner com a linha completa de deslizantes lado a lado
 LINHA = ('linha-deslizantes', ['max-redondo', 'deslizante-click-clip', 'deslizante-wave', 'deslizante-terminal'])
 
@@ -121,6 +124,27 @@ def recortar_fundo_escuro(img_rgb):
                 a[rotulos == i] = 0
     alpha = Image.fromarray(a)
     out = img_rgb.convert('RGBA')
+    out.putalpha(alpha)
+    return out.crop(alpha.point(lambda v: 255 if v > 30 else 0).getbbox())
+
+
+def recortar_fundo_claro(img_rgb, limite=248):
+    im = np.asarray(img_rgb).astype(np.float32)
+    m = ((im.mean(axis=2) < limite) * 255).astype(np.uint8)
+    m[:, :6] = 0  # faixa cinza que às vezes sobra na borda do recorte do PDF
+    m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)))
+    n, rotulos, stats, _ = cv2.connectedComponentsWithStats(m)
+    if n > 1:
+        maior = stats[1:, cv2.CC_STAT_AREA].max()
+        for i in range(1, n):
+            if stats[i, cv2.CC_STAT_AREA] < maior * 0.03:
+                m[rotulos == i] = 0
+    alpha = Image.fromarray(m).filter(ImageFilter.GaussianBlur(0.8))
+    # clareia o tecido para ler como branco, preservando a costura e os botões
+    rgb = np.clip((im - 40) * (255 / 205), 0, 255)
+    rgb = np.where(im.mean(axis=2, keepdims=True) > 150, np.maximum(rgb, im), im)
+    out = Image.fromarray(rgb.astype(np.uint8)).convert('RGBA')
     out.putalpha(alpha)
     return out.crop(alpha.point(lambda v: 255 if v > 30 else 0).getbbox())
 
@@ -200,7 +224,12 @@ def main():
         img = Image.open(FOTOS / arquivo).convert('RGB')
         if caixa:
             img = img.crop(caixa)
-        prod = recortar_fundo_escuro(img) if nome in FUNDO_ESCURO else recortar(img, sessao)
+        if nome in FUNDO_ESCURO:
+            prod = recortar_fundo_escuro(img)
+        elif nome in FUNDO_CLARO:
+            prod = recortar_fundo_claro(img)
+        else:
+            prod = recortar(img, sessao)
         # amplia quando o produto ficaria menor que o quadro final
         if max(prod.width / (LADO * OCUPA_L), prod.height / (LADO * OCUPA_A)) < 1:
             prod = ampliar(prod, sr)
