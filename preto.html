@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="assets/img/icone.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800;900&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800;900&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/loja.css">
   <link rel="stylesheet" href="assets/css/tema-preto.css">
   <meta name="robots" content="noindex">
@@ -115,8 +115,8 @@
 
   <!-- VITRINE -->
   <section class="shop" id="produtos">
-    <div class="shop-head">
-      <h2 class="section-title">Nossos produtos</h2>
+    <div class="shop-top">
+      <p class="shop-intro">Catálogo 2026. Acessórios para cortinas fabricados pela Kavicom. Arraste para navegar.</p>
       <div class="filters" id="filters">
         <button data-cat="todos" class="is-active">Todos</button>
         <button data-cat="deslizantes">Deslizantes</button>
@@ -127,8 +127,32 @@
         <button data-cat="apanhadores">Apanhadores</button>
       </div>
     </div>
-    <div id="vitrine"></div>
+
+    <div class="slider" id="slider" tabindex="0" aria-roledescription="carrossel" aria-label="Produtos">
+      <ul class="slider-track" id="track"></ul>
+    </div>
     <p class="empty" id="empty" hidden>Nenhum produto encontrado. <button id="clearSearch">Ver todos</button></p>
+
+    <div class="slider-bar" id="sliderBar">
+      <span class="slider-count"><b id="countAtual">0001</b> / <span id="countTotal">0017</span></span>
+      <span class="slider-progress"><i id="progress"></i></span>
+      <span class="slider-arrows">
+        <button type="button" id="slidePrev" aria-label="Produto anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button>
+        <button type="button" id="slideNext" aria-label="Próximo produto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+      </span>
+    </div>
+
+    <div class="ativo" id="ativo" aria-live="polite">
+      <div class="ativo-texto">
+        <span class="ativo-cat" id="ativoCat"></span>
+        <h2 class="ativo-nome" id="ativoNome"></h2>
+        <p class="ativo-desc" id="ativoDesc"></p>
+      </div>
+      <div class="ativo-acoes">
+        <button type="button" class="btn btn-outline btn-lg" id="ativoDetalhes">Ver detalhes</button>
+        <a class="btn btn-solid btn-lg" id="ativoComprar" href="#" target="_blank" rel="noopener">Comprar pelo WhatsApp</a>
+      </div>
+    </div>
   </section>
 
   <!-- DETALHES DO PRODUTO -->
