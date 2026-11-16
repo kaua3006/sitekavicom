@@ -35,9 +35,9 @@ SAIDA_PRETO = RAIZ / 'assets/img/produtos-preto'
 TRATADAS = FOTOS / 'catalogo/_tratadas'
 
 LADO = 1200          # tamanho final (quadrado)
-OCUPA_L = 0.70       # largura máxima do produto no quadro
-OCUPA_A = 0.66       # altura máxima do produto no quadro
-BASE = 0.80          # altura (fração) onde fica a base do produto
+OCUPA_L = 0.80       # largura máxima do produto no quadro
+OCUPA_A = 0.72       # altura máxima do produto no quadro
+CENTRO = 0.52        # altura (fração) do centro do produto, um pouco abaixo do meio
 
 # Fotos extraídas dos catálogos em PDF, em FOTOS/catalogo/<nome>.png
 # nome de saída: (arquivo em FOTOS, recorte (esq, topo, dir, baixo) ou None)
@@ -60,26 +60,29 @@ FUNDO_ESCURO = {
 # Peças brancas fotografadas sobre fundo branco: recorte pelo contraste com o branco
 # puro (o recorte automático deixa o tecido translúcido e acinzentado no fundo preto)
 FUNDO_CLARO = {'fita-wave-botoes'}
+# Peças cortadas pela borda esquerda da foto original (varões longos): encostam na
+# borda do quadro, como se continuassem para fora, em vez de flutuar com um corte seco
+SANGRIA = {'varao-due', 'varao-facile'}
 # Banner com a linha completa de deslizantes lado a lado
 LINHA = ('linha-deslizantes', ['max-redondo', 'deslizante-click-clip', 'deslizante-wave', 'deslizante-terminal'])
 
-MODELO_SR = Path.home() / '.cache/kavicom/EDSR_x2.pb'
-URL_SR = 'https://raw.githubusercontent.com/Saafke/EDSR_Tensorflow/master/models/EDSR_x2.pb'
+URL_SR = 'https://raw.githubusercontent.com/Saafke/EDSR_Tensorflow/master/models/EDSR_x{}.pb'
 
 
-def super_resolucao():
-    if not MODELO_SR.exists():
-        MODELO_SR.parent.mkdir(parents=True, exist_ok=True)
-        print('baixando modelo de super-resolução…')
-        urllib.request.urlretrieve(URL_SR, MODELO_SR)
+def super_resolucao(fator):
+    modelo = Path.home() / f'.cache/kavicom/EDSR_x{fator}.pb'
+    if not modelo.exists():
+        modelo.parent.mkdir(parents=True, exist_ok=True)
+        print(f'baixando modelo de super-resolução x{fator}…')
+        urllib.request.urlretrieve(URL_SR.format(fator), modelo)
     sr = cv2.dnn_superres.DnnSuperResImpl_create()
-    sr.readModel(str(MODELO_SR))
-    sr.setModel('edsr', 2)
+    sr.readModel(str(modelo))
+    sr.setModel('edsr', fator)
     return sr
 
 
 def ampliar(img_rgba, sr):
-    """Dobra a resolução: EDSR na cor, Lanczos no canal de transparência."""
+    """Amplia (x2 ou x4): EDSR na cor, Lanczos no canal de transparência."""
     rgb = cv2.cvtColor(np.array(img_rgba.convert('RGB')), cv2.COLOR_RGB2BGR)
     rgb2 = cv2.cvtColor(sr.upsample(rgb), cv2.COLOR_BGR2RGB)
     out = Image.fromarray(rgb2)
@@ -114,7 +117,7 @@ def recortar_fundo_escuro(img_rgb):
     base[np.linalg.norm(im - fundo, axis=2) > 30] = fundo
     fundo_local = np.asarray(Image.fromarray(base.astype(np.uint8)).filter(ImageFilter.GaussianBlur(40))).astype(np.float32)
     dist = np.linalg.norm(im - fundo_local, axis=2)
-    a = np.asarray(Image.fromarray((np.clip((dist - 14) / 36, 0, 1) * 255).astype(np.uint8)).filter(ImageFilter.MedianFilter(3))).copy()
+    a = np.asarray(Image.fromarray((np.clip((dist - 40) / 50, 0, 1) * 255).astype(np.uint8)).filter(ImageFilter.MedianFilter(3))).copy()
     # descarta fragmentos soltos pequenos (restos de texto do catálogo)
     n, rotulos, stats, _ = cv2.connectedComponentsWithStats((a > 30).astype(np.uint8), connectivity=8)
     if n > 1:
@@ -162,11 +165,12 @@ def melhorar(img_rgba):
     return rgb
 
 
-def enquadrar(prod, largura=LADO, altura=LADO):
-    escala = min(largura * OCUPA_L / prod.width, altura * OCUPA_A / prod.height)
+def enquadrar(prod, largura=LADO, altura=LADO, sangria=False):
+    ocupa_l = 0.92 if sangria else OCUPA_L
+    escala = min(largura * ocupa_l / prod.width, altura * OCUPA_A / prod.height)
     p = prod.resize((round(prod.width * escala), round(prod.height * escala)), Image.LANCZOS)
-    x = (largura - p.width) // 2
-    y = round(altura * BASE) - p.height
+    x = 0 if sangria else (largura - p.width) // 2
+    y = round(altura * CENTRO - p.height / 2)
     return p, x, y
 
 
@@ -201,7 +205,7 @@ def versao_branca(p, x, y, largura, altura):
 
 
 def salvar(nome, prod, largura=LADO, altura=LADO):
-    p, x, y = enquadrar(prod, largura, altura)
+    p, x, y = enquadrar(prod, largura, altura, nome in SANGRIA)
     versao_preta(p, x, y, largura, altura).save(SAIDA_PRETO / f'{nome}.webp', 'WEBP', quality=90, method=6)
     versao_branca(p, x, y, largura, altura).save(SAIDA_BRANCO / f'{nome}.jpg', quality=88, optimize=True, progressive=True)
     print(f'ok  {nome}  ({prod.width}x{prod.height})')
@@ -211,7 +215,7 @@ def main():
     SAIDA_BRANCO.mkdir(parents=True, exist_ok=True)
     SAIDA_PRETO.mkdir(parents=True, exist_ok=True)
     sessao = new_session('isnet-general-use')
-    sr = super_resolucao()
+    sr = {2: super_resolucao(2), 4: super_resolucao(4)}
 
     TRATADAS.mkdir(parents=True, exist_ok=True)
     escolhidos = sys.argv[1:] or list(PRODUTOS)
@@ -230,9 +234,10 @@ def main():
             prod = recortar_fundo_claro(img)
         else:
             prod = recortar(img, sessao)
-        # amplia quando o produto ficaria menor que o quadro final
-        if max(prod.width / (LADO * OCUPA_L), prod.height / (LADO * OCUPA_A)) < 1:
-            prod = ampliar(prod, sr)
+        # amplia quando o produto ficaria menor que o quadro final (x4 nas fotos bem pequenas)
+        falta = min(LADO * OCUPA_L / prod.width, LADO * OCUPA_A / prod.height)
+        if falta > 1:
+            prod = ampliar(prod, sr[4 if falta > 2.2 else 2])
         prod = melhorar(prod)
         prod.save(TRATADAS / f'{nome}.png')
         salvar(nome, prod)

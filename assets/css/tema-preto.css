@@ -56,7 +56,7 @@ body { background: var(--preto); color: var(--texto); }
 .filters button:hover { color: #fff; }
 .filters button.is-active { color: var(--roxo-300); }
 .peca-topo span:first-child { color: var(--roxo-300); }
-.peca-midia { background: #0e0c11; }
+.peca-midia { background: #0e0c11; border-color: var(--linha); }
 .peca.is-ativo .peca-midia { box-shadow: 0 0 0 1px var(--roxo-700); }
 .peca-base h3 { color: #fff; }
 .slider-count b { color: var(--roxo-300); }
